@@ -13,7 +13,7 @@ class HttpServer {
     private var shutdown = false
     fun await() {
         val port = 8080
-        var serverSocket: ServerSocket? = null
+        val serverSocket: ServerSocket
         try {
             serverSocket = ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"))
         } catch (e: IOException) {
@@ -22,8 +22,8 @@ class HttpServer {
         }
         while (!shutdown) {
             var socket: Socket
-            var `is`: InputStream?
-            var os: OutputStream?
+            var `is`: InputStream
+            var os: OutputStream
             try {
                 socket = serverSocket.accept()
                 `is` = socket.getInputStream()
