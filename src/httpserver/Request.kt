@@ -1,50 +1,40 @@
-package httpserver;
+package httpserver
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.IOException
+import java.io.InputStream
 
-public class Request {
+class Request(private val input: InputStream) {
+    var uri: String? = null
+        private set
 
-  private InputStream input;
-  private String uri;
-
-  public Request(InputStream input) {
-    this.input = input;
-  }
-
-  public String getUri() {
-    return uri;
-  }
-
-  public void parse() {
-    StringBuffer request = new StringBuffer(2048);
-    int i;
-    byte[] buffer = new byte[2048];
-    try {
-      i = input.read(buffer);
-    } catch (IOException e) {
-      e.printStackTrace();
-      i = -1;
+    fun parse() {
+        val request = StringBuffer(2048)
+        val i: Int
+        val buffer = ByteArray(2048)
+        i = try {
+            input.read(buffer)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            -1
+        }
+        for (j in 0 until i) {
+            request.append(buffer[j].toChar())
+        }
+        val requestString = request.toString()
+        print(requestString)
+        uri = parseUri(requestString)
     }
 
-    for (int j = 0; j < i; j++) {
-      request.append((char) buffer[j]);
+    private fun parseUri(requestString: String): String? {
+        val index1: Int = requestString.indexOf(' ')
+        val index2: Int
+        if (index1 != -1) {
+            index2 = requestString.indexOf(' ', index1 + 1)
+            if (index2 > index1) {
+                return requestString.substring(index1 + 1, index2)
+            }
+        }
+        return null
     }
 
-    String requestString = request.toString();
-    System.out.print(requestString);
-    uri = parseUri(requestString);
-  }
-
-  private String parseUri(String requestString) {
-    int index1, index2;
-    index1 = requestString.indexOf(' ');
-    if (index1 != -1) {
-      index2 = requestString.indexOf(' ', index1 + 1);
-      if (index2 > index1) {
-        return requestString.substring(index1 + 1, index2);
-      }
-    }
-    return null;
-  }
 }
