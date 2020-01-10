@@ -9,52 +9,52 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HttpServer {
-    public static final String WEB_ROOT = System.getProperty("user.dir") + File.separator + "webroot";
+  public static final String WEB_ROOT = System.getProperty("user.dir") + File.separator + "webroot";
 
-    private static final String SHTUDOWN_COMMAND = "/SHUTDOWN";
+  private static final String SHTUDOWN_COMMAND = "/SHUTDOWN";
 
-    private boolean shutdown = false;
+  private boolean shutdown = false;
 
-    public static void main(String[] args) {
-        HttpServer server = new HttpServer();
-        server.await();
+  public static void main(String[] args) {
+    HttpServer server = new HttpServer();
+    server.await();
+  }
+
+  public void await() {
+    int port = 8080;
+    ServerSocket serverSocket = null;
+
+    try {
+      serverSocket = new ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"));
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.exit(1);
     }
 
-    public void await() {
-        int port = 8080;
-        ServerSocket serverSocket = null;
+    while (!shutdown) {
+      Socket socket;
+      InputStream is;
+      OutputStream os;
 
-        try {
-            serverSocket = new ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+      try {
+        socket = serverSocket.accept();
+        is = socket.getInputStream();
+        os = socket.getOutputStream();
 
-        while (!shutdown) {
-            Socket socket;
-            InputStream is;
-            OutputStream os;
+        Request request = new Request(is);
+        request.parse();
 
-            try {
-                socket = serverSocket.accept();
-                is = socket.getInputStream();
-                os = socket.getOutputStream();
+        Response response = new Response(os);
+        response.setRequest(request);
+        response.sendStaticResource();
 
-                Request request = new Request(is);
-                request.parse();
+        socket.close();
 
-                Response response = new Response(os);
-                response.setRequest(request);
-                response.sendStaticResource();
-
-                socket.close();
-
-                shutdown = request.getUri().equals(SHTUDOWN_COMMAND);
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue;
-            }
-        }
+        shutdown = request.getUri().equals(SHTUDOWN_COMMAND);
+      } catch (IOException e) {
+        e.printStackTrace();
+        continue;
+      }
     }
+  }
 }
