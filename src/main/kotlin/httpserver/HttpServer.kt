@@ -9,10 +9,9 @@ import java.net.ServerSocket
 import java.net.Socket
 import kotlin.system.exitProcess
 
-class HttpServer {
+class HttpServer(val port: Int) {
     private var shutdown = false
     fun await() {
-        val port = 8080
         val serverSocket: ServerSocket
         try {
             serverSocket = ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"))
@@ -47,7 +46,7 @@ class HttpServer {
         private const val SHTUDOWN_COMMAND = "/SHUTDOWN"
         @JvmStatic
         fun main(args: Array<String>) {
-            val server = HttpServer()
+            val server = HttpServer(34343)
             server.await()
         }
     }

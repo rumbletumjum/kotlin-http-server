@@ -14,7 +14,7 @@ class Response(private var output: OutputStream) {
         val bytes = ByteArray(BUFFER_SIZE)
         var fis: FileInputStream? = null
         try {
-            val file = File(HttpServer.WEB_ROOT, request!!.uri)
+            val file = File(HttpServer.WEB_ROOT, request?.uri)
             if (file.exists()) {
                 fis = FileInputStream(file)
                 var ch = fis.read(bytes, 0, BUFFER_SIZE)
@@ -23,9 +23,10 @@ class Response(private var output: OutputStream) {
                     ch = fis.read(bytes, 0, BUFFER_SIZE)
                 }
             } else {
-                val errorMessage = ("HTTP/1.1 404 File Not Found\r\n"
+                val errorMessage = ("HTTP/1.1 200 OK\r\n"
                         + "Content-Type: text/html\r\n"
                         + "Content-Length: 23\r\n"
+                        + "Connection: close\r\n"
                         + "\r\n"
                         + "<h1>File Not Found</h1>")
                 output.write(errorMessage.toByteArray())
